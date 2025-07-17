@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Garden Master - 高级作物计算器 | 优化您的Roblox种植策略</title>
+  <meta name="description" content="Garden Master提供Roblox Grow a Garden游戏的高级作物计算、突变组合分析和收益优化策略。使用我们的花园模拟器最大化您的收益。"/>
+  
+  <!-- 网站图标 -->
+  <link rel="icon" href="/favicon/favicon.ico" sizes="any" type="image/x-icon"/>
+  <link rel="apple-touch-icon" href="/favicon/apple-touch-icon.png" sizes="180x180"/>
+  
+  <!-- CSS引入 -->
+  <link rel="stylesheet" href="/css/normalize.min.css">
+  <link rel="stylesheet" href="/css/fonts.css">
+  <link rel="stylesheet" href="/css/garden-master-theme.css">
+  
+  <!-- 谷歌字体 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    /* 页面特定样式 */
+    body {
+      font-family: 'Quicksand', sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      position: relative;
+      opacity: 0; /* 初始不可见，等待JS动画 */
+    }
+    
+    /* 布局样式 */
+    .layout {
+      display: flex;
+      min-height: 100vh;
+    }
+    
+    /* 侧边栏样式 */
+    .sidebar {
+      width: 280px;
+      background-color: var(--background-medium);
+      border-right: 1px solid var(--primary-light);
+      padding: 20px;
+      position: fixed;
+      height: 100vh;
+      overflow-y: auto;
+      box-shadow: 5px 0 15px rgba(0, 0, 0, 0.2);
+      z-index: 50;
+    }
+    
+    .sidebar-logo {
+      margin-bottom: 30px;
+      text-align: center;
+    }
+    
+    .sidebar-logo img {
+      width: 160px;
+      height: auto;
+    }
+    
+    .sidebar-menu {
+      margin-top: 40px;
+    }
+    
+    .sidebar-menu a {
+      display: flex;
+      align-items: center;
+      padding: 12px 15px;
+      margin-bottom: 10px;
+      color: var(--text-light);
+      text-decoration: none;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      border: 1px solid transparent;
+    }
+    
+    .sidebar-menu a:hover {
+      background-color: var(--primary-dark);
+      border-color: var(--accent-color);
+      transform: translateX(5px);
+    }
+    
+    .sidebar-menu a.active {
+      background-color: var(--primary-color);
+      border-color: var(--accent-color);
+    }
+    
+    .sidebar-menu .icon {
+      width: 24px;
+      height: 24px;
+      margin-right: 10px;
+      color: var(--accent-color);
+    }
+    
+    /* 主内容区样式 */
+    .main-content {
+      flex: 1;
+      margin-left: 280px;
+      padding: 30px;
+    }
+    
+    .page-header {
+      margin-bottom: 30px;
+      text-align: center;
+    }
+    
+    .page-title {
+      font-family: 'Poppins', sans-serif;
+      font-size: 36px;
+      margin-bottom: 15px;
+      position: relative;
+      display: inline-block;
+    }
+    
+    .page-title::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
+      height: 3px;
+      background: linear-gradient(to right, var(--primary-color), var(--accent-color));
+      border-radius: 3px;
+    }
+    
+    .page-subtitle {
+      font-size: 18px;
+      color: var(--text-medium);
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    
+    /* 卡片网格 */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 25px;
+      margin-top: 30px;
+    }
+    
+    /* 卡片样式 */
+    .feature-card {
+      background: var(--background-medium);
+      border-radius: 12px;
+      border: 1px solid var(--primary-light);
+      padding: 25px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .feature-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--accent-color);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 100px;
+      height: 100px;
+      background: radial-gradient(circle, var(--accent-color) 0%, rgba(138, 43, 226, 0) 70%);
+      opacity: 0.2;
+      border-radius: 50%;
+      transform: translate(50%, -50%);
+    }
+    
+    .feature-card-icon {
+      width: 60px;
+      height: 60px;
+      background-color: var(--background-dark);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      border: 2px solid var(--primary-light);
+    }
+    
+    .feature-card-icon span {
+      font-size: 30px;
+    }
+    
+    .feature-card h3 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 20px;
+      margin-bottom: 15px;
+      color: var(--accent-color);
+    }
+    
+    .feature-card p {
+      color: var(--text-medium);
+      font-size: 15px;
+      line-height: 1.5;
+    }
+    
+    /* 计算器部分 */
+    .calculator-section {
+      background-color: var(--background-dark);
+      border-radius: 15px;
+      padding: 30px;
+      margin-top: 50px;
+      border: 1px solid var(--primary-light);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+    
+    .calculator-tabs {
+      display: flex;
+      margin-bottom: 20px;
+      overflow-x: auto;
+      padding-bottom: 10px;
+    }
+    
+    .calculator-tab {
+      padding: 12px 20px;
+      background: var(--background-medium);
+      border: 1px solid var(--primary-light);
+      border-radius: 8px;
+      margin-right: 15px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+    }
+    
+    .calculator-tab.active {
+      background: var(--primary-color);
+      border-color: var(--accent-color);
+    }
+    
+    .calculator-content {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    
+    .crop-selection {
+      flex: 1;
+      min-width: 300px;
+    }
+    
+    .crop-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+      gap: 10px;
+      margin-top: 15px;
+      max-height: 400px;
+      overflow-y: auto;
+      padding: 10px;
+      background-color: var(--background-medium);
+      border-radius: 8px;
+    }
+    
+    .crop-item {
+      background-color: var(--background-dark);
+      border: 1px solid var(--primary-light);
+      border-radius: 8px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .crop-item:hover {
+      border-color: var(--accent-color);
+      transform: scale(1.05);
+    }
+    
+    .crop-item.selected {
+      background-color: var(--primary-dark);
+      border-color: var(--accent-color);
+    }
+    
+    .crop-item img {
+      width: 40px;
+      height: 40px;
+      margin-bottom: 8px;
+    }
+    
+    .crop-item span {
+      font-size: 12px;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+    
+    .mutation-selection {
+      flex: 1;
+      min-width: 300px;
+    }
+    
+    .mutation-groups {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-top: 15px;
+    }
+    
+    .mutation-group {
+      background-color: var(--background-medium);
+      border-radius: 8px;
+      padding: 15px;
+    }
+    
+    .mutation-group h4 {
+      margin-top: 0;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+    }
+    
+    .mutation-group h4 .icon {
+      margin-right: 8px;
+    }
+    
+    .mutation-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    
+    .mutation-btn {
+      background-color: var(--background-dark);
+      border: 1px solid var(--primary-light);
+      color: var(--text-light);
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .mutation-btn:hover {
+      border-color: var(--accent-color);
+    }
+    
+    .mutation-btn.active {
+      background-color: var(--primary-color);
+      border-color: var(--accent-color);
+    }
+    
+    .results-panel {
+      flex: 2;
+      min-width: 300px;
+      background-color: var(--background-medium);
+      border-radius: 8px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    
+    .results-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    
+    .results-header .icon {
+      margin-right: 10px;
+      color: var(--accent-color);
+    }
+    
+    .results-value {
+      font-size: 40px;
+      font-weight: bold;
+      color: var(--accent-color);
+      margin: 20px 0;
+      text-align: center;
+      text-shadow: 0 2px 10px rgba(255, 215, 0, 0.3);
+    }
+    
+    .results-details {
+      margin-top: 15px;
+      flex: 1;
+    }
+    
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--primary-light);
+    }
+    
+    .result-row:last-child {
+      border-bottom: none;
+    }
+    
+    /* 响应式设计 */
+    @media (max-width: 1024px) {
+      .sidebar {
+        width: 230px;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+      }
+      
+      .sidebar.open {
+        transform: translateX(0);
+      }
+      
+      .main-content {
+        margin-left: 0;
+      }
+      
+      .mobile-menu-toggle {
+        display: block;
+        position: fixed;
+        top: 15px;
+        left: 15px;
+        z-index: 100;
+        background-color: var(--background-medium);
+        border: 1px solid var(--primary-light);
+        border-radius: 8px;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+      }
+    }
+    
+    @media (min-width: 1025px) {
+      .mobile-menu-toggle {
+        display: none;
+      }
+      
+      .sidebar {
+        transform: translateX(0) !important;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .calculator-content {
+        flex-direction: column;
+      }
+      
+      .card-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- 移动菜单按钮 -->
+  <div class="mobile-menu-toggle">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </div>
+  
+  <div class="layout">
+    <!-- 侧边栏 -->
+    <nav class="sidebar">
+      <div class="sidebar-logo">
+        <img src="/images/garden-master-logo.svg" alt="Garden Master Logo">
+      </div>
+      
+      <div class="sidebar-menu">
+        <a href="#" class="active">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+            <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+          主页
+        </a>
+        
+        <a href="#">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+            <path d="M18 8V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h8"></path>
+            <path d="M10 19v-3.96 3.15"></path>
+            <path d="M7 19h5"></path>
+            <rect x="16" y="12" width="6" height="10" rx="2"></rect>
+          </svg>
+          作物图鉴
+        </a>
+        
+        <a href="#">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+            <path d="M8.4 10.6a2.1 2.1 0 1 1 0-4.2 2.1 2.1 0 0 1 0 4.2Z"></path>
+            <path d="M8.4 17.6a2.1 2.1 0 1 0 0-4.2 2.1 2.1 0 0 0 0 4.2Z"></path>
+            <path d="M15.6 10.6a2.1 2.1 0 1 1 0-4.2 2.1 2.1 0 0 1 0 4.2Z"></path>
+            <path d="M15.6 17.6a2.1 2.1 0 1 0 0-4.2 2.1 2.1 0 0 0 0 4.2Z"></path>
+            <path d="m9 8.1 6-1.2"></path>
+            <path d="m9 15.9 6-1.2"></path>
+            <path d="M10.5 13.5v-6"></path>
+            <path d="M13.5 10.5v6"></path>
+          </svg>
+          突变策略
+        </a>
+        
+        <a href="#">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+            <rect x="2" y="7" width="20" height="14" rx="2"></rect>
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+          </svg>
+          花园规划师
+        </a>
+        
+        <a href="#">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+            <circle cx="8" cy="8" r="7"></circle>
+            <polyline points="9.5 15 8 16.5 9.5 18"></polyline>
+            <path d="M14.5 20a5 5 0 0 0 3-9"></path>
+            <line x1="16" y1="3" x2="22" y2="3"></line>
+            <line x1="19" y1="6" x2="19" y2="0"></line>
+          </svg>
+          宠物助手
+        </a>
+        
+        <a href="#">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+            <path d="M3 6v18h18"></path>
+            <path d="m7 15-3 3 3 3"></path>
+            <rect x="7" y="3" width="14" height="14" rx="2"></rect>
+          </svg>
+          成长分析
+        </a>
+        
+        <a href="#">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+            <path d="M12 17h.01"></path>
+          </svg>
+          帮助中心
+        </a>
+      </div>
+    </nav>
+    
+    <!-- 主内容区 -->
+    <div class="main-content">
+      <div class="page-header">
+        <h1 class="page-title">Garden Master</h1>
+        <p class="page-subtitle">终极作物价值计算器，最大化您的Roblox "Grow a Garden" 游戏收益。探索独特的突变组合、成长分析和花园规划工具。</p>
+      </div>
+      
+      <!-- 特色卡片 -->
+      <div class="card-grid">
+        <div class="feature-card garden-card">
+          <div class="feature-card-icon">
+            <span>🧙</span>
+          </div>
+          <h3>高级突变配方</h3>
+          <p>解锁独家突变组合，使作物价值倍增。我们的高级计算器显示每种突变如何相互堆叠，帮助您获得前所未有的收益。</p>
+        </div>
+        
+        <div class="feature-card garden-card">
+          <div class="feature-card-icon">
+            <span>📊</span>
+          </div>
+          <h3>成长阶段分析</h3>
+          <p>了解每种作物在不同生长阶段的价值变化。制定最佳收获策略，掌握何时收获可获得最大收益。</p>
+        </div>
+        
+        <div class="feature-card garden-card">
+          <div class="feature-card-icon">
+            <span>🧩</span>
+          </div>
+          <h3>花园布局规划</h3>
+          <p>使用我们的互动花园规划师，创建最佳种植布局。考虑作物间距、阳光需求和互相影响，规划您的完美花园。</p>
+        </div>
+        
+        <div class="feature-card garden-card">
+          <div class="feature-card-icon">
+            <span>⚡</span>
+          </div>
+          <h3>元素增强模拟</h3>
+          <p>模拟不同元素力量对作物的影响，如雨水、寒冷、闪电等。了解如何利用游戏的环境因素增加作物价值。</p>
+        </div>
+      </div>
+      
+      <!-- 计算器部分 -->
+      <div class="calculator-section">
+        <div class="calculator-tabs">
+          <div class="calculator-tab active">作物价值计算</div>
+          <div class="calculator-tab">突变分析</div>
+          <div class="calculator-tab">投资回报</div>
+          <div class="calculator-tab">花园模拟</div>
+        </div>
+        
+        <div class="calculator-content">
+          <div class="crop-selection">
+            <h3>选择作物</h3>
+            <div class="crop-grid">
+              <div class="crop-item">
+                <img src="/images/crops/Avocado.webp" alt="牛油果">
+                <span>牛油果</span>
+              </div>
+              <div class="crop-item">
+                <img src="/images/crops/Banana.webp" alt="香蕉">
+                <span>香蕉</span>
+              </div>
+              <div class="crop-item selected">
+                <img src="/images/crops/Carrot.webp" alt="胡萝卜">
+                <span>胡萝卜</span>
+              </div>
+              <div class="crop-item">
+                <img src="/images/crops/Blueberry.webp" alt="蓝莓">
+                <span>蓝莓</span>
+              </div>
+              <div class="crop-item">
+                <img src="/images/crops/Dragon-Fruit.webp" alt="火龙果">
+                <span>火龙果</span>
+              </div>
+              <div class="crop-item">
+                <img src="/images/crops/Strawberry.webp" alt="草莓">
+                <span>草莓</span>
+              </div>
+              <div class="crop-item">
+                <img src="/images/crops/Moonflower.webp" alt="月亮花">
+                <span>月亮花</span>
+              </div>
+              <div class="crop-item">
+                <img src="/images/crops/Corn.webp" alt="玉米">
+                <span>玉米</span>
+              </div>
+              <div class="crop-item">
+                <img src="/images/crops/Starfruit.webp" alt="杨桃">
+                <span>杨桃</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mutation-selection">
+            <h3>元素强化</h3>
+            <div class="mutation-groups">
+              <div class="mutation-group">
+                <h4>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                  </svg>
+                  成长状态
+                </h4>
+                <div class="mutation-buttons">
+                  <button class="mutation-btn active">普通 (x1)</button>
+                  <button class="mutation-btn">金色 (x20)</button>
+                  <button class="mutation-btn">彩虹 (x50)</button>
+                </div>
+              </div>
+              
+              <div class="mutation-group">
+                <h4>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                    <path d="M8 2v22"></path>
+                    <path d="M16 2v22"></path>
+                    <path d="M12 6v14"></path>
+                    <path d="M2 12h20"></path>
+                  </svg>
+                  温度影响
+                </h4>
+                <div class="mutation-buttons">
+                  <button class="mutation-btn active">正常 (+0)</button>
+                  <button class="mutation-btn">湿润 (+1)</button>
+                  <button class="mutation-btn">寒冷 (+1)</button>
+                  <button class="mutation-btn">冰冻 (+9)</button>
+                </div>
+              </div>
+              
+              <div class="mutation-group">
+                <h4>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                    <path d="m12 3-1.9 5.8a2 2 0 0 1-1.287 1.288L3 12l5.8 1.9a2 2 0 0 1 1.288 1.287L12 21l1.9-5.8a2 2 0 0 1 1.287-1.288L21 12l-5.8-1.9a2 2 0 0 1-1.288-1.287Z"></path>
+                  </svg>
+                  环境魔法
+                </h4>
+                <div class="mutation-buttons">
+                  <button class="mutation-btn">巧克力 (+1)</button>
+                  <button class="mutation-btn">月光 (+1)</button>
+                  <button class="mutation-btn">授粉 (+2)</button>
+                  <button class="mutation-btn">血月 (+3)</button>
+                  <button class="mutation-btn">燃烧 (+3)</button>
+                  <button class="mutation-btn">等离子 (+4)</button>
+                  <button class="mutation-btn">天堂 (+4)</button>
+                  <button class="mutation-btn">熟成 (+9)</button>
+                  <button class="mutation-btn active">闪电 (+99)</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="results-panel">
+            <div class="results-header">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                <circle cx="8" cy="8" r="7"></circle>
+                <polyline points="8 4 8 8 10.5 10.5"></polyline>
+                <path d="M16 18a4 4 0 1 0 0-8"></path>
+                <path d="m9 10 7-2"></path>
+                <path d="m9 6 7 2"></path>
+                <path d="m11.5 6.5 4.5 5.5"></path>
+              </svg>
+              <h3>总价值计算</h3>
+            </div>
+            
+            <div class="results-value">99,000</div>
+            
+            <div class="results-details">
+              <div class="result-row">
+                <div>基础价值</div>
+                <div>1,000</div>
+              </div>
+              <div class="result-row">
+                <div>元素倍率</div>
+                <div>x99</div>
+              </div>
+              <div class="result-row">
+                <div>总倍率</div>
+                <div>x99</div>
+              </div>
+              <div class="result-row">
+                <div>作物数量</div>
+                <div>1</div>
+              </div>
+              <div class="result-row">
+                <div>作物重量</div>
+                <div>3.5 kg</div>
+              </div>
+            </div>
+            
+            <button class="garden-btn" style="margin-top: 20px; width: 100%;">
+              添加到花园规划
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- JavaScript引入 -->
+  <script src="/js/garden-effects.js"></script>
+  <script>
+    // 移动菜单切换
+    document.querySelector('.mobile-menu-toggle').addEventListener('click', function() {
+      document.querySelector('.sidebar').classList.toggle('open');
+    });
+    
+    // 计算器标签切换
+    const tabs = document.querySelectorAll('.calculator-tab');
+    tabs.forEach(tab => {
+      tab.addEventListener('click', function() {
+        tabs.forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+    
+    // 作物选择
+    const crops = document.querySelectorAll('.crop-item');
+    crops.forEach(crop => {
+      crop.addEventListener('click', function() {
+        crops.forEach(c => c.classList.remove('selected'));
+        this.classList.add('selected');
+      });
+    });
+    
+    // 突变按钮
+    const mutationButtons = document.querySelectorAll('.mutation-btn');
+    mutationButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        const parent = this.closest('.mutation-buttons');
+        parent.querySelectorAll('.mutation-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html> 
