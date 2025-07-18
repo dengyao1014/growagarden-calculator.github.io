@@ -1,0 +1,176 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neural Harvest Analyzer: Advanced Crop Mutation Analysis System</title>
+    <meta name="description" content="Advanced neural system for analyzing and optimizing crop mutations in virtual ecosystems.">
+    
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NY475E5CYL"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-NY475E5CYL');
+    </script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap');
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            font-family: 'Orbitron', monospace; 
+            background: #0A0A1E; 
+            color: #FFFFFF; 
+            line-height: 1.6; 
+            min-height: 100vh; 
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header { text-align: center; padding: 60px 0; margin-bottom: 40px; }
+        .main-title { 
+            font-size: 4rem; 
+            font-weight: 800; 
+            background: linear-gradient(45deg, #7B2FFF, #00E5FF, #FF2A6D); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            margin-bottom: 20px; 
+        }
+        .subtitle { color: #9090B0; font-size: 1.2rem; }
+        .feature-card { 
+            background: rgba(20, 20, 60, 0.4); 
+            border: 1px solid rgba(123, 47, 255, 0.3); 
+            border-radius: 15px; 
+            padding: 30px; 
+            margin: 20px 0; 
+            transition: all 0.3s ease; 
+        }
+        .feature-card:hover { 
+            border-color: #7B2FFF; 
+            transform: translateY(-5px); 
+            box-shadow: 0 20px 40px rgba(123, 47, 255, 0.2); 
+        }
+        .calc-section { 
+            background: rgba(20, 20, 60, 0.6); 
+            border: 1px solid rgba(0, 229, 255, 0.3); 
+            border-radius: 20px; 
+            padding: 40px; 
+            margin: 60px 0; 
+        }
+        .form-input, .form-select { 
+            background: rgba(30, 30, 80, 0.8); 
+            border: 1px solid rgba(123, 47, 255, 0.4); 
+            border-radius: 8px; 
+            padding: 12px 15px; 
+            color: #FFFFFF; 
+            margin: 10px 0; 
+            width: 100%; 
+        }
+        .calc-button { 
+            background: linear-gradient(45deg, #7B2FFF, #8F4FFF); 
+            border: 1px solid #00E5FF; 
+            color: #FFFFFF; 
+            padding: 15px 30px; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            margin: 20px 0; 
+        }
+        .result-panel { 
+            background: rgba(5, 255, 161, 0.1); 
+            border: 1px solid #05FFA1; 
+            border-radius: 10px; 
+            padding: 20px; 
+            text-align: center; 
+            display: none; 
+        }
+        .result-value { 
+            font-size: 2rem; 
+            color: #05FFA1; 
+            font-weight: 700; 
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 class="main-title">NEURAL HARVEST ANALYZER</h1>
+            <p class="subtitle">Advanced crop mutation analysis system</p>
+        </header>
+        
+        <div class="feature-card">
+            <h3 style="color: #00E5FF; margin-bottom: 15px;">🧮 Quantum Calculator</h3>
+            <p>Ultra-fast computation engine for complex mutation algorithms</p>
+        </div>
+        
+        <div class="feature-card">
+            <h3 style="color: #00E5FF; margin-bottom: 15px;">🧬 Mutation Analysis</h3>
+            <p>Advanced genetic analysis supporting 40+ mutation types</p>
+        </div>
+        
+        <section class="calc-section" id="calculator">
+            <h2 style="color: #00E5FF; text-align: center; margin-bottom: 30px;">🔬 Specimen Analysis Interface</h2>
+            
+            <div>
+                <label style="color: #9090B0;">Specimen Type:</label>
+                <select class="form-select" id="cropType">
+                    <option value="">Select Specimen</option>
+                    <option value="sunflower">Sunflower</option>
+                    <option value="dragon-pepper">Dragon Pepper</option>
+                    <option value="moon-mango">Moon Mango</option>
+                    <option value="lotus">Lotus</option>
+                </select>
+                
+                <label style="color: #9090B0;">Mutation Class:</label>
+                <select class="form-select" id="mutation">
+                    <option value="normal">Standard</option>
+                    <option value="golden">Golden (x20)</option>
+                    <option value="rainbow">Rainbow (x50)</option>
+                </select>
+                
+                <label style="color: #9090B0;">Specimen Count:</label>
+                <input type="number" class="form-input" id="quantity" placeholder="Enter quantity" value="1">
+                
+                <button class="calc-button" onclick="calculateValue()">ANALYZE SPECIMEN</button>
+            </div>
+            
+            <div class="result-panel" id="result">
+                <div>Estimated Value:</div>
+                <div class="result-value" id="resultValue">0</div>
+            </div>
+        </section>
+    </div>
+    
+    <script>
+        const specimenData = {
+            'sunflower': { base: 100 },
+            'dragon-pepper': { base: 250 },
+            'moon-mango': { base: 500 },
+            'lotus': { base: 750 }
+        };
+        
+        const mutationMultipliers = {
+            'normal': 1,
+            'golden': 20,
+            'rainbow': 50
+        };
+        
+        function calculateValue() {
+            const cropType = document.getElementById('cropType').value;
+            const mutation = document.getElementById('mutation').value;
+            const quantity = parseInt(document.getElementById('quantity').value) || 1;
+            
+            if (!cropType) {
+                alert('Please select a specimen type');
+                return;
+            }
+            
+            const baseValue = specimenData[cropType].base;
+            const mutationMult = mutationMultipliers[mutation];
+            const totalValue = baseValue * mutationMult * quantity;
+            
+            document.getElementById('resultValue').textContent = totalValue.toLocaleString();
+            document.getElementById('result').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
